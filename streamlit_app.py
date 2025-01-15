@@ -18,8 +18,8 @@ csv_file_name = f"{table_name}.csv"
 def fetch_data():
     """Fetches data from the SQL Server table."""
     try:
-        connection_string = f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server_name};DATABASE={db_name};Trusted_Connection=yes;"
-        conn = pyodbc.connect(connection_string)
+       connection_string = f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server_name};DATABASE={db_name};Trusted_Connection=yes;Connection Timeout=30;"
+       conn = pyodbc.connect(connection_string)
         query = f"SELECT * FROM {table_name}"
         df = pd.read_sql(query, conn)
         conn.close()
