@@ -1,35 +1,42 @@
-import pyodbc
-import pandas as pd
 import streamlit as st
+import pandas as pd
+import pyodbc
 
-# Streamlit app setup
-st.title("ODBC Data Fetch and Display")
-
-# Input parameters (from user or fixed configuration)
-odbc_name = "DE_DWHM_DB"
-server_name = "LAPTOP-9MQOKA1D"
-db_name = "DE_DWHM_DB"
-table_name = "FileCompare"
+# Database connection details
+ODBC_NAME = "DE_DWHM_DB"
+SERVER_NAME = "LAPTOP-9MQOKA1D"
+DB_NAME = "DE_DWHM_DB"
+TABLE_NAME = "FileCompare"
+SCHEMA_NAME = "dbo"
 
 def fetch_data():
-    """Fetches data from the SQL Server table."""
+    """Fetches data from the specified table in the database."""
     try:
-        connection_string = f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server_name};DATABASE={db_name};Trusted_Connection=yes;Connection Timeout=30;"
-        conn = pyodbc.connect(connection_string)
-        query = f"SELECT * FROM {table_name}"
+        # Establishing connection
+        conn_str = f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={SERVER_NAME};DATABASE={DB_NAME};Trusted_Connection=yes;ODBC={ODBC_NAME}"
+        conn = pyodbc.connect(conn_str)
+        query = f"SELECT * FROM {SCHEMA_NAME}.{TABLE_NAME}"
+        # Execute the query and fetch data into a DataFrame
         df = pd.read_sql(query, conn)
         conn.close()
-        st.success("Data fetched successfully!")
         return df
     except Exception as e:
-        st.error(f"Error fetching data: {e}")
+        st.error(f"An error occurred while fetching data: {e}")
         return None
 
-# Main process
-if st.button("Fetch Data"):
-    st.info("Fetching data from SQL Server...")
-    data = fetch_data()
+# Streamlit app
+st.title("SQL Server Table Viewer")
+st.markdown("This app fetches and displays data from the FileCompare table in the DE_DWHM_DB database.")
 
-    if data is not None:
-        st.info("Displaying data...")
-        st.dataframe(data)
+# Fetch data
+data = fetch_data()
+
+if data is not None:
+    st.subheader("Data Preview")
+    st.dataframe(data)
+
+    st.subheader("Download Data")
+    csv = data.to_csv(index=False)
+    st.download_button(label="Download CSV", data=csv, file_name="FileCompare.csv", mime="text/csv")
+else:
+    st.warning("No data available or an error occurred.")
