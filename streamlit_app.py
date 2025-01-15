@@ -9,7 +9,7 @@ import streamlit as st
 st.title("ODBC Data Fetch and Google Drive Upload")
 
 # Input parameters (from user or fixed configuration)
-odbc_name = "Sales"
+odbc_name = "DE_DWHM_DB"
 server_name = "LAPTOP-9MQOKA1D"
 db_name = "DE_DWHM_DB"
 table_name = "FileCompare"
