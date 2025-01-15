@@ -1,72 +1,71 @@
-import streamlit as st
 import pyodbc
 import pandas as pd
-import json
-import requests
+import os
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
+import streamlit as st
 
-# Streamlit app title
-st.title("SQL Server Data Fetch and Google Drive Upload")
+# Streamlit app setup
+st.title("ODBC Data Fetch and Google Drive Upload")
 
-# Sidebar for input fields
-st.sidebar.header("SQL Server Connection Details")
-server = st.sidebar.text_input("Server Address", value="DESKTOP-RCE6E1O")
-database = st.sidebar.text_input("Database Name", value="DE_MIGR_DB")
-username = st.sidebar.text_input("Username", value="test1")
-password = st.sidebar.text_input("Password", value="cls", type="password")
+# Input parameters (from user or fixed configuration)
+odbc_name = "Sales"
+server_name = "LAPTOP-9MQOKA1D"
+db_name = "DE_DWHM_DB"
+table_name = "FileCompare"
+csv_file_name = f"{table_name}.csv"
 
-st.sidebar.header("Table Selection")
-table_name = st.sidebar.text_input("Table Name", value="DemoTable")
-
-# Button to fetch data
-if st.sidebar.button("Fetch Data and Upload to Google Drive"):
+def fetch_data():
+    """Fetches data from the SQL Server table."""
     try:
-        # Establish pyodbc connection
-        connection_string = f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}"
+        connection_string = f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server_name};DATABASE={db_name};Trusted_Connection=yes;"
         conn = pyodbc.connect(connection_string)
-
-        # Fetch data
         query = f"SELECT * FROM {table_name}"
         df = pd.read_sql(query, conn)
-
-        # Close the connection
         conn.close()
-
-        # Display data
-        st.write("Fetched Data:")
-        st.dataframe(df)
-
-        # Save data to a CSV file locally
-        csv_file = f"{table_name}.csv"
-        df.to_csv(csv_file, index=False)
-        st.success(f"Data saved to {csv_file}")
-
-        # Google Drive Upload - Replace with your access token
-        headers = {"Authorization": "Bearer ya29.a0ARW5m75wvEaloWYXYYGsRbjMwFt4IgspbX6osR4CBXh8A0J1BZRnAHHl5a4vcqfoVBon-lbh35z_xFISstdSgxJEmeXIns0j63NuDNZp1yhMD_dikIb4TI9o3Yg0AHK2voi8kGBDhs3usN-CmJbUZg6799WEsyNkunk0WIIOaCgYKAZ4SARISFQHGX2MiMx1INhPtYZQ6uufeZBGgnA0175"}  # Make sure to replace 'YOUR_ACCESS_TOKEN' with the actual access token
-
-        # Metadata
-        para = {
-            "name": csv_file,
-        }
-
-        # Open the CSV file to upload
-        files = {
-            'data': ('metadata', json.dumps(para), 'application/json'),
-            'file': open(csv_file, "rb")
-        }
-
-        # Upload file to Google Drive
-        response = requests.post(
-            "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
-            headers=headers,
-            files=files
-        )
-
-        # Handling the response
-        if response.status_code == 200:
-            st.success("File uploaded successfully to Google Drive.")
-            st.json(response.json())
-        else:
-            st.error(f"Failed to upload file: {response.status_code}, {response.text}")
-
+        st.success("Data fetched successfully!")
+        return df
     except Exception as e:
-        st.error(f"An error occurred: {e}")
+        st.error(f"Error fetching data: {e}")
+        return None
+
+def save_csv(df, file_name):
+    """Saves DataFrame to a CSV file."""
+    try:
+        df.to_csv(file_name, index=False)
+        st.success(f"CSV file created: {file_name}")
+    except Exception as e:
+        st.error(f"Error saving CSV: {e}")
+
+def upload_to_google_drive(file_name):
+    """Uploads a file to Google Drive."""
+    try:
+        # Google Drive Authentication
+        gauth = GoogleAuth()
+        gauth.LocalWebserverAuth()  # Creates local webserver for authentication
+        drive = GoogleDrive(gauth)
+
+        # Upload file
+        file = drive.CreateFile({"title": os.path.basename(file_name)})
+        file.SetContentFile(file_name)
+        file.Upload()
+        st.success(f"File uploaded to Google Drive: {file['title']}")
+    except Exception as e:
+        st.error(f"Error uploading file to Google Drive: {e}")
+
+# Main process
+if st.button("Fetch and Upload Data"):
+    st.info("Fetching data from SQL Server...")
+    data = fetch_data()
+
+    if data is not None:
+        st.info("Saving data to CSV...")
+        save_csv(data, csv_file_name)
+
+        st.info("Uploading CSV to Google Drive...")
+        upload_to_google_drive(csv_file_name)
+
+        # Clean up local file
+        if os.path.exists(csv_file_name):
+            os.remove(csv_file_name)
+            st.success("Local CSV file removed after upload.")
