@@ -2,3 +2,4 @@ pyodbc
 pandas
 pydrive
 streamlit
+pymssql
