@@ -2,10 +2,6 @@ import pyodbc
 
 import streamlit as st
 
-st.title('My Streamlit App')
-st.write("Hello, World!")
-
-
 conn_str = (
     "DRIVER={ODBC Driver 17 for SQL Server};"
     "SERVER=LAPTOP-9MQOKA1D;"  # Change this to your actual server
@@ -18,4 +14,4 @@ try:
     print("Connection successful!")
     conn.close()
 except pyodbc.Error as e:
-    print("Error:Tested the connection", e)
+    st.write("Hello, World!")
