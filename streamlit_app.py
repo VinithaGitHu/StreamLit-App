@@ -10,7 +10,7 @@ SCHEMA_NAME = "dbo"
 def fetch_data():
     try:
         # Create the SQLAlchemy engine
-        engine = create_engine(f"mssql+pyodbc://{SERVER_NAME}/{DB_NAME}?driver=ODBC+Driver+17+for+SQL+Server")
+        engine = create_engine(f"mssql+pymssql://{SERVER_NAME}/{DB_NAME}")
         # Query the table and fetch data into a DataFrame
         query = f"SELECT * FROM {SCHEMA_NAME}.{TABLE_NAME}"
         with engine.connect() as connection:
