@@ -3,7 +3,7 @@ import pandas as pd
 import streamlit as st
 
 # SQL Server connection details
-server_name = "localhost"
+server_name = "192.168.29.74,1433"
 database_name = "DE_DWHM_DB"
 table_name = "[dbo].[SampleTable]"
 
