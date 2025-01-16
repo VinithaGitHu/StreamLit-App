@@ -3,12 +3,12 @@ import pandas as pd
 import streamlit as st
 
 # SQL Server connection details
-server_name = "LAPTOP-9MQOKA1D"
+server_name = "192.168.29.74"
 database_name = "DE_DWHM_DB"
 table_name = "[dbo].[SampleTable]"
 
 # Connection string
-connection_string = f"DRIVER={{ODBC Driver 17 for SQL Server}}; Server=tcp:{server_name},1433;DATABASE={database_name};Trusted_Connection=yes;TrustServerCertificate=yes;"
+connection_string = f"DRIVER={{ODBC Driver 17 for SQL Server}}; Server={server_name};DATABASE={database_name};Trusted_Connection=yes;TrustServerCertificate=yes;"
 
 def fetch_data():
     """Fetch data from the SQL Server table."""
