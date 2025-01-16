@@ -1,19 +1,23 @@
 import streamlit as st
 import pandas as pd
-import pymssql
+import pyodbc
 
 # Database connection details
 SERVER_NAME = "LAPTOP-9MQOKA1D"
-DB_NAME = "DE_MIGR_DB"
-USER = "LCSS_AUTO_USER"
-PASSWORD = "12345"
+DB_NAME = "DE_DWHM_DB"
 TABLE_NAME = "FileCompare"
 SCHEMA_NAME = "dbo"
 
 def fetch_data():
-    """Fetch data using pymssql with SQL Server Authentication."""
+    """Fetch data using pyodbc."""
     try:
-        conn = pymssql.connect(server=SERVER_NAME, user=USER, password=PASSWORD, database=DB_NAME)
+        conn_str = (
+            f"DRIVER={{ODBC Driver 17 for SQL Server}};"
+            f"SERVER={SERVER_NAME};"
+            f"DATABASE={DB_NAME};"
+            f"Trusted_Connection=yes;"
+        )
+        conn = pyodbc.connect(conn_str)
         query = f"SELECT * FROM {SCHEMA_NAME}.{TABLE_NAME}"
         df = pd.read_sql(query, conn)
         conn.close()
@@ -22,7 +26,6 @@ def fetch_data():
         st.error(f"An error occurred while fetching data: {e}")
         return None
 
-# Streamlit app
 st.title("SQL Server Table Viewer")
 data = fetch_data()
 if data is not None:
