@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import pymssql
+from sqlalchemy import create_engine
 
 # Database connection details
 SERVER_NAME = "LAPTOP-9MQOKA1D"
@@ -9,14 +9,12 @@ TABLE_NAME = "FileCompare"
 SCHEMA_NAME = "dbo"
 
 def fetch_data():
-    """Fetch data using pymssql."""
+    """Fetch data using sqlalchemy."""
     try:
-        # Establish connection
-        conn = pymssql.connect(server=SERVER_NAME, database=DB_NAME, user=None, password=None)
+        conn_str = f"mssql+pyodbc://{SERVER_NAME}/{DB_NAME}?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes"
+        engine = create_engine(conn_str)
         query = f"SELECT * FROM {SCHEMA_NAME}.{TABLE_NAME}"
-        # Fetch data into a DataFrame
-        df = pd.read_sql(query, conn)
-        conn.close()
+        df = pd.read_sql(query, engine)
         return df
     except Exception as e:
         st.error(f"An error occurred while fetching data: {e}")
