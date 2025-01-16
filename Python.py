@@ -12,4 +12,4 @@ try:
     print("Connection successful!")
     conn.close()
 except pyodbc.Error as e:
-    print("Error:", e)
+    print("Error:Tested the connection", e)
