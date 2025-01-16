@@ -4,7 +4,7 @@ import pyodbc
 
 # Database connection details
 SERVER_NAME = "LAPTOP-9MQOKA1D"
-Dsn_name = "DE_DWHM_DB"
+DSN_NAME = "DE_DWHM_DB"
 DB_NAME = "DE_DWHM_DB"
 TABLE_NAME = "SampleTable"
 SCHEMA_NAME = "dbo"
