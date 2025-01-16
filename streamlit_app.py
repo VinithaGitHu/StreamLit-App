@@ -5,7 +5,7 @@ import pyodbc
 # Database connection details
 SERVER_NAME = "LAPTOP-9MQOKA1D"
 DB_NAME = "DE_DWHM_DB"
-TABLE_NAME = "PhysicalModelDDL"
+TABLE_NAME = "SampleTable"
 SCHEMA_NAME = "dbo"
 
 def fetch_data():
@@ -32,7 +32,7 @@ def fetch_data():
 
 # Streamlit app
 st.title("SQL Server Table Viewer")
-st.markdown("This app fetches and displays data from the PhysicalModelDDL table in the DE_DWHM_DB database.")
+st.markdown("This app fetches and displays data from the SampleTable table in the DE_DWHM_DB database.")
 
 # Fetch data
 data = fetch_data()
