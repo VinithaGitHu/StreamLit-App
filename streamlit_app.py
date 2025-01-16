@@ -11,8 +11,10 @@ SCHEMA_NAME = "dbo"
 def fetch_data():
     """Fetch data using pymssql."""
     try:
-        conn = pymssql.connect(server=SERVER_NAME, database=DB_NAME, trusted_connection="yes")
+        # Establish connection
+        conn = pymssql.connect(server=SERVER_NAME, database=DB_NAME, user=None, password=None)
         query = f"SELECT * FROM {SCHEMA_NAME}.{TABLE_NAME}"
+        # Fetch data into a DataFrame
         df = pd.read_sql(query, conn)
         conn.close()
         return df
