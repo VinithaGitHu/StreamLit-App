@@ -15,7 +15,7 @@ def fetch_data():
         # Establishing connection
         conn_str = (
             f"DRIVER={{ODBC Driver 17 for SQL Server}};"
-            f"DSN={dsn_name};"
+            f"DSN={DSN_NAME};"
             f"SERVER={SERVER_NAME};"
             f"DATABASE={DB_NAME};"
             f"Trusted_Connection=yes;"
