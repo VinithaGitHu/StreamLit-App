@@ -4,6 +4,7 @@ import pyodbc
 
 # Database connection details
 SERVER_NAME = "LAPTOP-9MQOKA1D"
+Dsn_name = "DE_DWHM_DB"
 DB_NAME = "DE_DWHM_DB"
 TABLE_NAME = "SampleTable"
 SCHEMA_NAME = "dbo"
@@ -14,6 +15,7 @@ def fetch_data():
         # Establishing connection
         conn_str = (
             f"DRIVER={{ODBC Driver 17 for SQL Server}};"
+            f"DSN={dsn_name};"
             f"SERVER={SERVER_NAME};"
             f"DATABASE={DB_NAME};"
             f"Trusted_Connection=yes;"
