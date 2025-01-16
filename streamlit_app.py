@@ -18,11 +18,10 @@ def fetch_data():
             f"DATABASE={DB_NAME};"
             f"Trusted_Connection=yes;"
         )
-        conn = pyodbc.connect(conn_str)
-        query = f"SELECT * FROM {SCHEMA_NAME}.{TABLE_NAME}"
-        # Execute the query and fetch data into a DataFrame
-        df = pd.read_sql(query, conn)
-        conn.close()
+        with pyodbc.connect(conn_str) as conn:  # Using 'with' ensures connection is closed automatically
+            query = f"SELECT * FROM {SCHEMA_NAME}.{TABLE_NAME}"
+            # Execute the query and fetch data into a DataFrame
+            df = pd.read_sql(query, conn)
         return df
     except pyodbc.Error as e:
         st.error(f"Database connection error: {e}")
