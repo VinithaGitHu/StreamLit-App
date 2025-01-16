@@ -5,16 +5,16 @@ import pymssql
 # Database connection details
 SERVER_NAME = "LAPTOP-9MQOKA1D"
 DB_NAME = "DE_DWHM_DB"
-USER = "your_username"
-PASSWORD = "your_password"
 TABLE_NAME = "FileCompare"
 SCHEMA_NAME = "dbo"
 
 def fetch_data():
-    """Fetch data using pymssql with SQL Server Authentication."""
+    """Fetch data using pymssql."""
     try:
-        conn = pymssql.connect(server=SERVER_NAME, user=USER, password=PASSWORD, database=DB_NAME)
+        # Establish connection
+        conn = pymssql.connect(server=SERVER_NAME, database=DB_NAME, user=None, password=None)
         query = f"SELECT * FROM {SCHEMA_NAME}.{TABLE_NAME}"
+        # Fetch data into a DataFrame
         df = pd.read_sql(query, conn)
         conn.close()
         return df
