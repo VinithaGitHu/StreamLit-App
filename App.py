@@ -8,7 +8,7 @@ database_name = "DE_DWHM_DB"
 table_name = "[dbo].[SampleTable]"
 
 # Connection string
-connection_string = f"DRIVER={{ODBC Driver 17 for SQL Server}}; Server={server_name},1900;DATABASE={database_name};Trusted_Connection=yes;TrustServerCertificate=yes;"
+connection_string = f"DRIVER={{ODBC Driver 17 for SQL Server}}; Server={server_name},54869;DATABASE={database_name};Trusted_Connection=yes;TrustServerCertificate=yes;"
 
 def fetch_data():
     """Fetch data from the SQL Server table."""
