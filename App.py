@@ -14,7 +14,7 @@ def fetch_data():
     """Fetch data from the SQL Server table."""
     try:
         # Establish connection
-        with  pyodbc.connect('DSN=DE_DWHM_DB;') as conn:
+        with  pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};DSN=DE_DWHM_DB;') as conn:
             query = f"SELECT * FROM {table_name}"
             df = pd.read_sql(query, conn)
         return df
