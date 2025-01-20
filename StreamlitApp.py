@@ -3,8 +3,10 @@ import os
 import csv
 
 def fetch_tables_and_write_csv(dsn, user, password, output_path):
-    # Establish a connection to the Oracle database
+    connection = None
+    cursor = None
     try:
+        # Establish a connection to the Oracle database
         connection = cx_Oracle.connect(user=user, password=password, dsn=dsn)
         cursor = connection.cursor()
 
@@ -58,12 +60,13 @@ def fetch_tables_and_write_csv(dsn, user, password, output_path):
 
     except cx_Oracle.DatabaseError as e:
         print(f"Database error: {e}")
-
+    except Exception as ex:
+        print(f"An unexpected error occurred: {ex}")
     finally:
-        # Clean up resources
-        if cursor:
+        # Clean up resources safely
+        if cursor is not None:
             cursor.close()
-        if connection:
+        if connection is not None:
             connection.close()
 
 if __name__ == "__main__":
