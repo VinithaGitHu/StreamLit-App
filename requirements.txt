@@ -4,3 +4,4 @@ pydrive
 streamlit
 pymssql
 sqlalchemy
+cx_Oracle
