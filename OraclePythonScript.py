@@ -10,7 +10,7 @@ import time
 st.title("Oracle Data Fetch and Google Drive Upload with Background File Monitoring")
 
 # Access Oracle credentials via user input (no secrets.toml)
-dsn = st.text_input("Enter Oracle DSN", value="WS_2005_SR_ORA")  # Example: "localhost:1521/ORCL"
+dsn = st.text_input("Enter Oracle DSN", value="WS_2005_SR")  # Example: "localhost:1521/ORCL"
 username = st.text_input("Enter Oracle Username", value="WS_2005_SR")  # Replace with your default username
 password = st.text_input("Enter Oracle Password", value="Dataentrega@2024", type="password")  # Password input is masked
 
