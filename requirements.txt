@@ -5,3 +5,4 @@ streamlit
 pymssql
 sqlalchemy
 cx_Oracle
+oracledb
