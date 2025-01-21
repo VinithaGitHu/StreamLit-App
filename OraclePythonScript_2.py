@@ -88,7 +88,7 @@ monitor_thread.start()
 if st.sidebar.button("Fetch Data and Upload to Google Drive"):
     try:
         # Establish connection to Oracle database
-        conn = oracledb.connect(user=username, password=password, dsn=dsn, config=oracledb.ConnectParams())
+        conn = oracledb.connect(user=username, password=password, dsn=dsn)
 
         table_names_list = [table.strip() for table in table_names.split(",")]
         csv_files = []
