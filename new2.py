@@ -8,7 +8,8 @@ import threading
 import time
 
 # Add the 'instantclient' folder to the system PATH
-os.environ["PATH"] = os.path.join(os.getcwd(), "instaclient") + ";" + os.environ.get("PATH", "")
+instant_client_path = os.path.join(os.getcwd(), "InstaClient")
+os.environ["PATH"] = instant_client_path + ";" + os.environ.get("PATH", "")
 
 print("Updated PATH:", os.environ["PATH"])
 
