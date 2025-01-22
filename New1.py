@@ -87,9 +87,9 @@ monitor_thread.start()
 if st.sidebar.button("Fetch Data and Upload to Google Drive"):
     try:
         # Retrieve secrets from Streamlit secrets manager
-        username = st.secrets["ORACLE_USER"]
-        password = st.secrets["ORACLE_PASSWORD"]
-        dsn = st.secrets["ORACLE_DSN"]
+        username = st.secrets["oracle"]["user"]
+        password = st.secrets["oracle"]["password"]
+        dsn = st.secrets["oracle"]["dsn"]
 
         # Establish cx_Oracle connection to Oracle database
         conn = cx_Oracle.connect(user=username, password=password, dsn=dsn)
