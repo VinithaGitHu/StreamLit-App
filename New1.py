@@ -12,8 +12,6 @@ st.title("Oracle Data Fetch and Google Drive Upload with Background File Monitor
 # Access DSN and Database Name via user input
 database_name = st.text_input("Database Name", placeholder="Database Name")  # Placeholder for Database Name
 dsn = st.text_input("DSN Name", placeholder="DSN Name")  # Placeholder for DSN Name
-username = "WS_2005_SR"  # Oracle username
-password = "Dataentrega@2024"  # Oracle password
 
 # If database_name is empty, set it to the DSN value
 if not database_name:
@@ -88,8 +86,13 @@ monitor_thread.start()
 # Button to fetch data from Oracle and upload file to Google Drive
 if st.sidebar.button("Fetch Data and Upload to Google Drive"):
     try:
+        # Retrieve secrets from Streamlit secrets manager
+        username = st.secrets["ORACLE_USER"]
+        password = st.secrets["ORACLE_PASSWORD"]
+        dsn = st.secrets["ORACLE_DSN"]
+
         # Establish cx_Oracle connection to Oracle database
-        conn = cx_Oracle.connect("WS_2005_SR", "Dataentrega@2024", "dataentrega_high")
+        conn = cx_Oracle.connect(user=username, password=password, dsn=dsn)
 
         # Query to get all views starting with "V_DE_WHRM_"
         cursor = conn.cursor()
