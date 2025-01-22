@@ -8,7 +8,7 @@ import threading
 import time
 
 # Add the 'instantclient' folder to the system PATH
-os.environ["PATH"] = os.path.join(os.getcwd(), "instantclient") + ";" + os.environ.get("PATH", "")
+os.environ["PATH"] = os.path.join(os.getcwd(), "instaclient") + ";" + os.environ.get("PATH", "")
 
 # Streamlit app title
 st.title("Oracle Data Fetch and Google Drive Upload with Background File Monitoring")
