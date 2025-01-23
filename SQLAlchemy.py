@@ -19,7 +19,7 @@ conn = st.connection(
     username=st.text_input("Username", placeholder="Enter Oracle username"),  # Oracle username input
     password=st.text_input("Password", placeholder="Enter Oracle password", type="password"),  # Oracle password input
     query={
-        "driver": "ODBC Driver for Oracle",  # Replace with the exact driver you are using
+        "driver": "Oracle in Oracle",  # Replace with the exact driver you are using
         "protocol": "TCPS",                # Ensure it's using TCPS protocol for secure connections
         "port": "1522",                    # Port for Oracle Cloud DB
         "encrypt": "yes",                  # Oracle uses encryption by default
