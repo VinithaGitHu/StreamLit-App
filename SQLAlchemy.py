@@ -9,35 +9,22 @@ import time
 # Streamlit app title
 st.title("Oracle Data Fetch and Google Drive Upload with Background File Monitoring")
 
-# Oracle Connection Setup
-conn = st.connection(
-    "sql",
-    dialect="oracle",
-    driver="cx_oracle",
-    host="adb.ap-mumbai-1.oraclecloud.com",
-    database="g10916f2e32ac91_dataentrega_high.adb.oraclecloud.com",
-    username=st.text_input("Username", placeholder="Enter Oracle username"),  # Oracle username input
-    password=st.text_input("Password", placeholder="Enter Oracle password", type="password"),  # Oracle password input
-    query={
-        "driver": "Oracle in Oracle",  # Replace with the exact driver you are using
-        "protocol": "TCPS",                # Ensure it's using TCPS protocol for secure connections
-        "port": "1522",                    # Port for Oracle Cloud DB
-        "encrypt": "yes",                  # Oracle uses encryption by default
-        "service_name": "g10916f2e32ac91_dataentrega_high.adb.oraclecloud.com"
-    },
-)
+# Database connection details
+dsn = st.text_input("DSN (Data Source Name)", placeholder="Enter DSN here")
+username = st.text_input("Username", placeholder="Enter Oracle username")
+password = st.text_input("Password", placeholder="Enter Oracle password", type="password")
 
 # Google Drive API access token
 headers = {
     "Authorization": "Bearer ya29.a0ARW5m775L4ODw5VW__mmpVW6zm7asuQx618d4HleZoC-Efci7DErj102JxkzKaAxMQaV9nK2B0pdqsrIrCJfdrnPwKUp9CfQut2ZCbH4hDGbtEHmBEycl2XKJKBG2mYB20m-FtIGpW9GyzHpCHiN4_CAnLR46EzQrc8WidGzaCgYKAQASARASFQHGX2MiRFtnC1vW5DhGQn85et5nPw0175"
-}  # Replace with your access token.
+}  # Replace with your actual access token.
 
 # Folder IDs for Migration A, B, C
-migration_a_folder_id = "1qfgsEKOiJPEN_fJ9OLuyNf2yj1DytheG"  # Replace with Migration A folder ID
-migration_b_folder_id = "1Mbejz1LTosUNY4ke7O8OnZDtXO2mnHPz"  # Replace with Migration B folder ID
-migration_c_folder_id = "1UAsT1L8X4VmUEqhxqV4O8xBYNUyBYAOc"  # Replace with Migration C folder ID
+migration_a_folder_id = "1qfgsEKOiJPEN_fJ9OLuyNf2yj1DytheG"
+migration_b_folder_id = "1Mbejz1LTosUNY4ke7O8OnZDtXO2mnHPz"
+migration_c_folder_id = "1UAsT1L8X4VmUEqhxqV4O8xBYNUyBYAOc"
 
-# Function to list files in a folder
+# Function to fetch files from a Google Drive folder
 def list_files_in_folder(folder_id):
     query = f"'{folder_id}' in parents and trashed = false"
     response = requests.get(
@@ -53,7 +40,8 @@ def list_files_in_folder(folder_id):
 # Function to move a file to another folder
 def move_file(file_id, target_folder_id):
     get_response = requests.get(
-        f"https://www.googleapis.com/drive/v3/files/{file_id}?fields=parents", headers=headers
+        f"https://www.googleapis.com/drive/v3/files/{file_id}?fields=parents",
+        headers=headers,
     )
     if get_response.status_code == 200:
         current_parents = ",".join(get_response.json().get("parents", []))
@@ -69,22 +57,17 @@ def move_file(file_id, target_folder_id):
     else:
         st.error(f"Failed to get file details: {get_response.status_code}, {get_response.text}")
 
-# Background task to monitor Migration B folder
+# Background thread to monitor the Migration B folder
 def monitor_folder():
     while True:
         try:
-            # List files in Migration B folder
             files = list_files_in_folder(migration_b_folder_id)
-
-            # Check if Trigger.txt exists
             trigger_file = next((file for file in files if file["name"] == "Trigger.txt"), None)
             if trigger_file:
                 st.info("Found Trigger.txt in Migration B folder. Moving it to Migration C folder...")
                 move_file(trigger_file["id"], migration_c_folder_id)
             else:
                 st.warning("Trigger.txt not found in Migration B folder. Checking again in 1 minute...")
-
-            # Wait for 5 minutes before rechecking
             time.sleep(300)
         except Exception as e:
             st.error(f"Error in monitoring folder: {str(e)}")
@@ -93,76 +76,54 @@ def monitor_folder():
 monitor_thread = threading.Thread(target=monitor_folder, daemon=True)
 monitor_thread.start()
 
-# Button to fetch data from Oracle and upload file to Google Drive
+# Button to fetch data from Oracle and upload it to Google Drive
 if st.sidebar.button("Fetch Data and Upload to Google Drive"):
     try:
-        # Establish cx_Oracle connection to Oracle database
-        conn = cx_Oracle.connect(
-            user=st.secrets["oracle"]["user"],
-            password=st.secrets["oracle"]["password"],
-            dsn=st.secrets["oracle"]["dsn"],
-        )
+        # Establish connection using cx_Oracle
+        if not dsn or not username or not password:
+            st.error("Please provide all database connection details.")
+        else:
+            conn = cx_Oracle.connect(user=username, password=password, dsn=dsn)
+            cursor = conn.cursor()
 
-        # Query to get all views starting with "V_DE_WHRM_"
-        cursor = conn.cursor()
-        cursor.execute("SELECT VIEW_NAME FROM ALL_VIEWS WHERE VIEW_NAME LIKE 'V_DE_WHRM_%'")
-        views = [row[0] for row in cursor.fetchall()]
+            # Fetch views
+            cursor.execute("SELECT VIEW_NAME FROM ALL_VIEWS WHERE VIEW_NAME LIKE 'V_DE_WHRM_%'")
+            views = [row[0] for row in cursor.fetchall()]
 
-        # Initialize a list to store file names
-        csv_files = []
+            csv_files = []
+            for view_name in views:
+                try:
+                    query = f"SELECT * FROM {view_name}"
+                    df = pd.read_sql(query, conn)
+                    csv_file = f"{view_name}.csv"
+                    df.to_csv(csv_file, index=False)
+                    st.success(f"Data from {view_name} saved to {csv_file}")
+                    csv_files.append(csv_file)
+                except Exception as e:
+                    st.error(f"Failed to fetch data from {view_name}: {e}")
 
-        # Loop through each view and process data
-        for view_name in views:
-            try:
-                # Fetch data for the view
-                query = f"SELECT * FROM {view_name}"
-                df = pd.read_sql(query, conn)
+            # Close the connection
+            conn.close()
 
-                # Display data
-                st.write(f"Fetched Data from {view_name}:")
-                st.dataframe(df)
-
-                # Save data to a CSV file locally
-                csv_file = f"{view_name}.csv"
-                df.to_csv(csv_file, index=False)
-                st.success(f"Data saved to {csv_file}")
-                csv_files.append(csv_file)
-
-            except Exception as view_error:
-                # Handle errors for individual views
-                st.error(f"Failed to fetch data for view {view_name}: {view_error}")
-
-        # Close the connection
-        conn.close()
-
-        # Loop through and upload each CSV file
-        for csv_file in csv_files:
-            try:
-                # Metadata for Google Drive upload
-                para = {
-                    "name": csv_file,
-                    "parents": [migration_a_folder_id]  # Ensure it uploads to Migration A folder
-                }
-
-                files = {
-                    'data': ('metadata', json.dumps(para), 'application/json'),
-                    'file': open(csv_file, "rb")
-                }
-
-                response = requests.post(
-                    "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
-                    headers=headers,
-                    files=files
-                )
-
-                # Handling the response
-                if response.status_code == 200:
-                    st.success(f"{csv_file} uploaded successfully to Migration A folder in Google Drive.")
-                    st.json(response.json())
-                else:
-                    st.error(f"Failed to upload {csv_file}: {response.status_code}, {response.text}")
-            except Exception as upload_error:
-                st.error(f"Error uploading {csv_file}: {upload_error}")
-
+            # Upload files to Google Drive
+            for csv_file in csv_files:
+                with open(csv_file, "rb") as f:
+                    metadata = {
+                        "name": csv_file,
+                        "parents": [migration_a_folder_id]
+                    }
+                    files = {
+                        "data": ("metadata", json.dumps(metadata), "application/json"),
+                        "file": f
+                    }
+                    response = requests.post(
+                        "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
+                        headers=headers,
+                        files=files
+                    )
+                    if response.status_code == 200:
+                        st.success(f"{csv_file} uploaded successfully.")
+                    else:
+                        st.error(f"Failed to upload {csv_file}: {response.text}")
     except Exception as e:
-        st.error(f"An error occurred: {e}")
+        st.error(f"Error occurred: {e}")
